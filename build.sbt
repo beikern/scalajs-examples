@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
 )
 
 //bootSnippet := "example.ScalaJSExample().main(document.getElementById('canvas'));"
-bootSnippet := "example.ScalaJSExample().main(document.getElementById('canvas'));"
+bootSnippet := "example.ScalaJSExample().main(document.getElementById('divid'));"
 
 updateBrowsers <<= updateBrowsers.triggeredBy(fastOptJS in Compile)
 

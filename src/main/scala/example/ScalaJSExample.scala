@@ -1,47 +1,125 @@
 package example
 
 import org.scalajs.dom
-import org.scalajs.dom.html.Canvas
+import org.scalajs.dom.html
 
-import scala.scalajs.js
+import scala.scalajs.js.JSApp
+import scalatags.JsDom.all._
 
-object ScalaJSExample extends js.JSApp
-  with JavaScriptContextImpl
-  with CanvasConfiguration {
-  override def main(): Unit = {
+object ScalaJSExample extends JSApp{
+  override def main() = {
 
-    js.timers.setInterval(1000){
-      render
+    val target = dom.document.getElementById("divid")
+
+    //Example 3
+
+    val listings: Seq[String] = Seq(
+      "Apple", "Apricot", "Banana", "Cherry",
+      "Mango", "Mangosteen", "Mandarin",
+      "Grape", "Grapefruit", "Guava"
+    )
+    val box = input (
+      `type`:="text",
+      placeholder:= "type to filter the list"
+    ).render
+
+    def renderListings(sequence: Seq[String]) =
+      ul(
+        for{
+          fruit <- sequence
+          if fruit.toLowerCase.startsWith(box.value.toLowerCase)
+        } yield {
+          val (first, last) = fruit.splitAt(box.value.length)
+          li(
+            span(
+              backgroundColor:="yellow",
+              first
+            ),
+            last)
+        }
+      ).render
+
+
+
+
+    val output = div(renderListings(listings)).render
+
+    box.onkeyup = (e: dom.Event) => {
+      output.innerHTML=""
+      output.appendChild(renderListings(listings))
     }
-    // forma vieja -> setInterval(render _, 1000)
 
+
+    target.appendChild(
+      div(
+        h1("Search box!"),
+        p("Type here to filter the list of things below!"),
+        div(box),
+        output
+    ).render
+    )
+
+
+
+    // Example 2
+    /*
+    val box = input (
+      `type`:="text",
+      placeholder:="Type here!!!"
+    ).render
+
+    val output = span.render
+
+    box.onkeyup = (e: dom.Event) => {
+      output.textContent = box.value.toUpperCase()
+    }
+
+    target.appendChild(
+      div(
+        h1("Capital Box!"),
+        p(
+          "Type here and have it capitalized!"
+        ),
+        div(box),
+        div(output).apply(style:="margin: 8px")
+      ).render
+    )*/
+
+
+    // Example 1
+    /*val (animalA, animalB) = ("fox", "dog")
+
+    target.appendChild(
+      div(
+        h1("Hello World!"),
+        p(
+          "The quick brown ", b(animalA),
+          " jumps over the lazy ",
+          i(animalB), "."
+        )
+      ).render
+    )
+
+    target.appendChild(
+      button(
+        `type`:="button",
+        onclick:= {() => lulz},
+        "thelulz"
+      ).render
+    )*/
   }
 
-  def render(implicit state: CtxCanvasState) = {
-
-    val date = new js.Date()
-    state.ctx2d.clearRect(
-      0, 0, state.canvas.width, state.canvas.height
+  def lulz = {
+    println("lulz ejecutado")
+    val x = dom.document.createElement("div").asInstanceOf[html.Div]
+    x.appendChild(
+      div(
+        p(
+          "for the lulz"
+        )
+      ).render
     )
-
-    state.ctx2d.font = "75px sans-serif"
-    state.ctx2d.fillText(
-      Seq(
-        date.getHours(),
-        date.getMinutes(),
-        date.getSeconds()
-      ).mkString(":"),
-      state.canvas.width / 2,
-      state.canvas.height / 2
-    )
+    dom.document.body.appendChild(x)
   }
 }
 
-
-trait JavaScriptContextImpl extends JavaScriptContext {
-
-  private val canvas: Canvas = dom.document.getElementById("canvas").asInstanceOf[Canvas]
-  private val ctx2d: dom.CanvasRenderingContext2D = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-
-  override implicit lazy val ctxCanvasState = CtxCanvasState(canvas, ctx2d)
-}
